@@ -18,28 +18,48 @@ DB_CONFIG = {
 }
 
 SYMBOLS = ["RELIANCE", "TCS", "INFY"]
-INTERVAL = "5minute"
-DAYS_TO_FETCH = 5
+INTERVAL = "5minute"  # can be 'minute', '5minute', 'day', etc.
+DAYS_TO_FETCH = 5      # past N days for intraday
 
 kite = KiteConnect(api_key=api_key)
 kite.set_access_token(access_token)
 
-# Insert data specifically for historical_data table
-def insert_data(conn, data):
+def insert_data(conn, table_name, column_names, data):
     cursor = conn.cursor()
-    sql = """
-    INSERT INTO historical_data
-    (tradingsymbol, exchange, timestamp, open, high, low, close, volume)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-    """
-    values_list = [(row['tradingsymbol'], row['exchange'], row['timestamp'],
-                    row['open'], row['high'], row['low'], row['close'], row['volume'])
-                   for row in data]
+
+    # Convert single dict → list of dicts
+    if isinstance(data, dict):
+        data = [data]
+
+    # Build column list manually
+    columns = ""
+    for i, col in enumerate(column_names):
+        columns += col
+        if i != len(column_names) - 1:
+            columns += ", "
+
+    # Build placeholder list manually
+    placeholders = ""
+    for i in range(len(column_names)):
+        placeholders += "%s"
+        if i != len(column_names) - 1:
+            placeholders += ", "
+
+    # Create final SQL query
+    sql = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+
+    # Create values list manually
+    values_list = []
+    for row in data:
+        row_values = []
+        for col in column_names:
+            row_values.append(row[col])
+        values_list.append(tuple(row_values))
+
     cursor.executemany(sql, values_list)
     conn.commit()
     cursor.close()
 
-# Create historical_data table if not exists
 def create_table_if_not_exists(conn):
     cursor = conn.cursor()
     create_table_query = """
@@ -59,7 +79,6 @@ def create_table_if_not_exists(conn):
     conn.commit()
     cursor.close()
 
-# Fetch and store historical/intraday data
 def fetch_and_store_historical_data(conn, symbols, interval, days):
     instruments = pd.DataFrame(kite.instruments("NSE"))
     symbol_token_map = dict(zip(instruments["tradingsymbol"], instruments["instrument_token"]))
@@ -91,7 +110,9 @@ def fetch_and_store_historical_data(conn, symbols, interval, days):
                 'volume': row['volume']
             } for row in historical_data]
 
-            insert_data(conn, data_to_insert)
+            insert_data(conn, 'historical_data',
+                        ['tradingsymbol', 'exchange', 'timestamp', 'open', 'high', 'low', 'close', 'volume'],
+                        data_to_insert)
             print(f"Data for {symbol} inserted.")
         except Exception as e:
             print(f"Error fetching data for {symbol}: {e}")
