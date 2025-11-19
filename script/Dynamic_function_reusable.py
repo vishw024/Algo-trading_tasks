@@ -18,24 +18,28 @@ DB_CONFIG = {
 }
 
 SYMBOLS = ["RELIANCE", "TCS", "INFY"]
-INTERVAL = "5minute"  # can be 'minute', '5minute', 'day', etc.
-DAYS_TO_FETCH = 5      # past N days for intraday
+INTERVAL = "5minute"
+DAYS_TO_FETCH = 5
 
 kite = KiteConnect(api_key=api_key)
 kite.set_access_token(access_token)
 
-def insert_data(conn, table_name, column_names, data):
+# Insert data specifically for historical_data table
+def insert_data(conn, data):
     cursor = conn.cursor()
-    if isinstance(data, dict):
-        data = [data]
-    columns = ", ".join(column_names)
-    placeholders = ", ".join(["%s"] * len(column_names))
-    sql = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
-    values_list = [tuple(row[col] for col in column_names) for row in data]
+    sql = """
+    INSERT INTO historical_data
+    (tradingsymbol, exchange, timestamp, open, high, low, close, volume)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    """
+    values_list = [(row['tradingsymbol'], row['exchange'], row['timestamp'],
+                    row['open'], row['high'], row['low'], row['close'], row['volume'])
+                   for row in data]
     cursor.executemany(sql, values_list)
     conn.commit()
     cursor.close()
 
+# Create historical_data table if not exists
 def create_table_if_not_exists(conn):
     cursor = conn.cursor()
     create_table_query = """
@@ -55,6 +59,7 @@ def create_table_if_not_exists(conn):
     conn.commit()
     cursor.close()
 
+# Fetch and store historical/intraday data
 def fetch_and_store_historical_data(conn, symbols, interval, days):
     instruments = pd.DataFrame(kite.instruments("NSE"))
     symbol_token_map = dict(zip(instruments["tradingsymbol"], instruments["instrument_token"]))
@@ -86,9 +91,7 @@ def fetch_and_store_historical_data(conn, symbols, interval, days):
                 'volume': row['volume']
             } for row in historical_data]
 
-            insert_data(conn, 'historical_data',
-                        ['tradingsymbol', 'exchange', 'timestamp', 'open', 'high', 'low', 'close', 'volume'],
-                        data_to_insert)
+            insert_data(conn, data_to_insert)
             print(f"Data for {symbol} inserted.")
         except Exception as e:
             print(f"Error fetching data for {symbol}: {e}")
