@@ -68,7 +68,6 @@ def main():
     symbol_token_map = dict(zip(instruments["tradingsymbol"], instruments["instrument_token"]))
 
     symbols = ["NIFTY", "RELIANCE", "BANKNIFTY"]
-    tokens = [symbol_token_map[s] for s in symbols if s in symbol_token_map]
 
     from_date = dt.date.today() - dt.timedelta(days=20)
     to_date = dt.date.today()
@@ -76,7 +75,8 @@ def main():
 
     columns = ["instrument", "datetime", "open", "high", "low", "close", "volume"]
 
-    for token in tokens:
+    for symbol in symbols:
+        token = symbol_token_map[symbol]
         df = fetch_historical(kite, token, from_date, to_date, interval)
         if df.empty:
             continue
@@ -84,7 +84,7 @@ def main():
         records = []
         for _, row in df.iterrows():
             records.append({
-                "instrument": token,
+                "instrument": symbol,   # <-- changed from token to symbol
                 "datetime": row["date"],
                 "open": row["open"],
                 "high": row["high"],
@@ -94,7 +94,7 @@ def main():
             })
 
         insert_data(conn, "historical_ohlc", columns, records)
-        print(f"{len(records)} candles inserted for token {token}")
+        print(f"{len(records)} candles inserted for {symbol}")
 
     conn.close()
     print("DONE")
