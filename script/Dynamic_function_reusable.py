@@ -1,125 +1,103 @@
-from kiteconnect import KiteConnect
 import psycopg2
-import datetime as dt
+from kiteconnect import KiteConnect
 import pandas as pd
+import datetime as dt
 import os
 
-# Config
 cwd = os.chdir("C:\\Users\\VISHW\\Desktop\\Algorithemic_trading")
-key_secret = open("api_key.txt",'r').read().split()
+key_secret = open("api_key.txt", 'r').read().split()
 api_key = key_secret[0]
 access_token = key_secret[1]
-
-DB_CONFIG = {
-    'host': 'localhost',
-    'database': 'postgres',
-    'user': 'postgres',
-    'password': 'Vishw#2004'
-}
-
-SYMBOLS = ["RELIANCE", "TCS", "INFY"]
-INTERVAL = "5minute"  # can be 'minute', '5minute', 'day', etc.
-DAYS_TO_FETCH = 5      # past N days for intraday
 
 kite = KiteConnect(api_key=api_key)
 kite.set_access_token(access_token)
 
+def get_connection():
+    return psycopg2.connect(
+        host="localhost",
+        database="postgres",
+        user="postgres",
+        password="Vishw#2004"
+    )
+
+def create_ohlc_table(conn):
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS historical_ohlc (
+            id SERIAL PRIMARY KEY,
+            instrument BIGINT,
+            datetime TIMESTAMP,
+            open FLOAT,
+            high FLOAT,
+            low FLOAT,
+            close FLOAT,
+            volume BIGINT
+        );
+    """)
+    conn.commit()
+    cursor.close()
+
 def insert_data(conn, table_name, column_names, data):
     cursor = conn.cursor()
-
-    # Convert single dict → list of dicts
     if isinstance(data, dict):
         data = [data]
-
-    # Build column list manually
-    columns = ""
-    for i, col in enumerate(column_names):
-        columns += col
-        if i != len(column_names) - 1:
-            columns += ", "
-
-    # Build placeholder list manually
-    placeholders = ""
-    for i in range(len(column_names)):
-        placeholders += "%s"
-        if i != len(column_names) - 1:
-            placeholders += ", "
-
-    # Create final SQL query
+    columns = ", ".join(column_names)
+    placeholders = ", ".join(["%s"] * len(column_names))
     sql = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
-
-    # Create values list manually
-    values_list = []
-    for row in data:
-        row_values = []
-        for col in column_names:
-            row_values.append(row[col])
-        values_list.append(tuple(row_values))
-
+    values_list = [tuple(row[col] for col in column_names) for row in data]
     cursor.executemany(sql, values_list)
     conn.commit()
     cursor.close()
 
-def create_table_if_not_exists(conn):
-    cursor = conn.cursor()
-    create_table_query = """
-    CREATE TABLE IF NOT EXISTS historical_data (
-        tradingsymbol TEXT,
-        exchange TEXT,
-        timestamp TIMESTAMP,
-        open NUMERIC,
-        high NUMERIC,
-        low NUMERIC,
-        close NUMERIC,
-        volume BIGINT,
-        PRIMARY KEY (tradingsymbol, exchange, timestamp)
-    );
-    """
-    cursor.execute(create_table_query)
-    conn.commit()
-    cursor.close()
+def fetch_historical(kite, instrument_token, from_date, to_date, interval):
+    df = pd.DataFrame(
+        kite.historical_data(
+            instrument_token,
+            from_date,
+            to_date,
+            interval
+        )
+    )
+    return df
 
-def fetch_and_store_historical_data(conn, symbols, interval, days):
+def main():
+    conn = get_connection()
+    create_ohlc_table(conn)
+
     instruments = pd.DataFrame(kite.instruments("NSE"))
     symbol_token_map = dict(zip(instruments["tradingsymbol"], instruments["instrument_token"]))
 
-    end_date = dt.date.today()
-    start_date = end_date - dt.timedelta(days=days)
+    symbols = ["NIFTY", "RELIANCE", "BANKNIFTY"]
+    tokens = [symbol_token_map[s] for s in symbols if s in symbol_token_map]
 
-    for symbol in symbols:
-        if symbol not in symbol_token_map:
-            print(f"Symbol {symbol} not found. Skipping.")
+    from_date = dt.date.today() - dt.timedelta(days=20)
+    to_date = dt.date.today()
+    interval = "5minute"
+
+    columns = ["instrument", "datetime", "open", "high", "low", "close", "volume"]
+
+    for token in tokens:
+        df = fetch_historical(kite, token, from_date, to_date, interval)
+        if df.empty:
             continue
 
-        instrument_token = symbol_token_map[symbol]
-        try:
-            historical_data = kite.historical_data(
-                instrument_token,
-                start_date,
-                end_date,
-                interval
-            )
-            data_to_insert = [{
-                'tradingsymbol': symbol,
-                'exchange': 'NSE',
-                'timestamp': row['date'],
-                'open': row['open'],
-                'high': row['high'],
-                'low': row['low'],
-                'close': row['close'],
-                'volume': row['volume']
-            } for row in historical_data]
+        records = []
+        for _, row in df.iterrows():
+            records.append({
+                "instrument": token,
+                "datetime": row["date"],
+                "open": row["open"],
+                "high": row["high"],
+                "low": row["low"],
+                "close": row["close"],
+                "volume": row["volume"]
+            })
 
-            insert_data(conn, 'historical_data',
-                        ['tradingsymbol', 'exchange', 'timestamp', 'open', 'high', 'low', 'close', 'volume'],
-                        data_to_insert)
-            print(f"Data for {symbol} inserted.")
-        except Exception as e:
-            print(f"Error fetching data for {symbol}: {e}")
+        insert_data(conn, "historical_ohlc", columns, records)
+        print(f"{len(records)} candles inserted for token {token}")
+
+    conn.close()
+    print("DONE")
 
 if __name__ == "__main__":
-    conn = psycopg2.connect(**DB_CONFIG)
-    create_table_if_not_exists(conn)
-    fetch_and_store_historical_data(conn, SYMBOLS, INTERVAL, DAYS_TO_FETCH)
-    conn.close()
-    print("All data fetched and stored successfully.")
+    main()
