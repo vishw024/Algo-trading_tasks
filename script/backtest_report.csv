@@ -1,0 +1,78 @@
+timestamp,pattern,signal,price
+2025-11-14 09:25:00,Bearish Engulfing,SELL,1516.0
+2025-11-14 09:35:00,Bearish Engulfing,SELL,1513.1
+2025-11-14 10:00:00,Bearish Engulfing,SELL,1504.0
+2025-11-14 10:10:00,Bullish Engulfing,BUY,1504.5
+2025-11-14 10:20:00,Doji,Neutral,1506.1
+2025-11-14 10:45:00,Bullish Engulfing,BUY,1502.6
+2025-11-14 11:00:00,Bullish Engulfing,BUY,1510.2
+2025-11-14 11:50:00,Doji,Neutral,1503.9
+2025-11-14 12:05:00,Doji,Neutral,1501.4
+2025-11-14 12:25:00,Doji,Neutral,1501.5
+2025-11-14 13:10:00,Bullish Engulfing,BUY,1493.6
+2025-11-14 13:25:00,Bullish Engulfing,BUY,1493.9
+2025-11-14 13:35:00,Bearish Engulfing,SELL,1492.4
+2025-11-14 13:55:00,Doji,Neutral,1490.1
+2025-11-14 14:15:00,Bullish Engulfing,BUY,1491.9
+2025-11-14 14:30:00,Bearish Engulfing,SELL,1491.5
+2025-11-14 14:45:00,Doji,Neutral,1492.2
+2025-11-14 14:55:00,Doji,Neutral,1492.2
+2025-11-14 15:10:00,Doji,Neutral,1503.6
+2025-11-14 15:15:00,Bearish Engulfing,SELL,1503.2
+2025-11-14 15:20:00,Bullish Engulfing,BUY,1506.1
+2025-11-17 09:50:00,Bullish Engulfing,BUY,1499.3
+2025-11-17 10:10:00,Bearish Engulfing,SELL,1499.4
+2025-11-17 10:15:00,Bullish Engulfing,BUY,1500.5
+2025-11-17 10:20:00,Bearish Engulfing,SELL,1499.0
+2025-11-17 10:40:00,Doji,Neutral,1496.9
+2025-11-17 10:45:00,Doji,Neutral,1497.0
+2025-11-17 12:40:00,Bullish Engulfing,BUY,1501.2
+2025-11-17 13:00:00,Bearish Engulfing,SELL,1502.7
+2025-11-17 13:10:00,Doji,Neutral,1502.3
+2025-11-17 13:25:00,Bullish Engulfing,BUY,1502.0
+2025-11-17 13:30:00,Bearish Engulfing,SELL,1501.1
+2025-11-17 13:45:00,Doji,Neutral,1504.1
+2025-11-17 14:25:00,Bullish Engulfing,BUY,1506.5
+2025-11-17 14:45:00,Doji,Neutral,1505.5
+2025-11-17 14:50:00,Bearish Engulfing,SELL,1504.5
+2025-11-18 09:25:00,Doji,Neutral,1498.3
+2025-11-18 10:00:00,Doji,Neutral,1490.6
+2025-11-18 10:20:00,Bullish Engulfing,BUY,1491.9
+2025-11-18 10:45:00,Doji,Neutral,1490.0
+2025-11-18 10:50:00,Doji,Neutral,1490.0
+2025-11-18 11:20:00,Doji,Neutral,1491.2
+2025-11-18 11:30:00,Doji,Neutral,1491.2
+2025-11-18 11:50:00,Bearish Engulfing,SELL,1494.0
+2025-11-18 12:00:00,Bullish Engulfing,BUY,1494.1
+2025-11-18 12:05:00,Doji,Neutral,1494.1
+2025-11-18 12:25:00,Doji,Neutral,1488.0
+2025-11-18 12:30:00,Bullish Engulfing,BUY,1488.2
+2025-11-18 12:40:00,Bearish Engulfing,SELL,1487.0
+2025-11-18 12:50:00,Bullish Engulfing,BUY,1487.0
+2025-11-18 13:10:00,Doji,Neutral,1487.1
+2025-11-18 13:25:00,Doji,Neutral,1488.3
+2025-11-18 14:00:00,Bullish Engulfing,BUY,1492.7
+2025-11-18 14:30:00,Doji,Neutral,1491.0
+2025-11-18 14:40:00,Bearish Engulfing,SELL,1490.3
+2025-11-18 14:45:00,Doji,Neutral,1490.6
+2025-11-18 15:15:00,Doji,Neutral,1484.7
+2025-11-19 09:40:00,Bullish Engulfing,BUY,1512.9
+2025-11-19 10:40:00,Doji,Neutral,1536.5
+2025-11-19 11:00:00,Bearish Engulfing,SELL,1536.9
+2025-11-19 11:25:00,Doji,Neutral,1540.1
+2025-11-19 11:35:00,Doji,Neutral,1540.0
+2025-11-19 11:40:00,Doji,Neutral,1540.0
+2025-11-19 11:55:00,Doji,Neutral,1537.0
+2025-11-19 12:05:00,Bearish Engulfing,SELL,1536.9
+2025-11-19 12:10:00,Bullish Engulfing,BUY,1538.0
+2025-11-19 12:15:00,Doji,Neutral,1538.1
+2025-11-19 12:25:00,Doji,Neutral,1539.8
+2025-11-19 12:30:00,Bearish Engulfing,SELL,1539.0
+2025-11-19 13:05:00,Bearish Engulfing,SELL,1533.7
+2025-11-19 13:35:00,Bearish Engulfing,SELL,1534.1
+2025-11-19 14:05:00,Bullish Engulfing,BUY,1538.6
+2025-11-19 14:10:00,Doji,Neutral,1538.7
+2025-11-19 14:25:00,Bullish Engulfing,BUY,1540.1
+2025-11-19 14:50:00,Doji,Neutral,1541.0
+2025-11-19 15:00:00,Doji,Neutral,1540.9
+2025-11-19 15:10:00,Bullish Engulfing,BUY,1541.5
